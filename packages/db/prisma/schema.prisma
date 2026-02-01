@@ -1,0 +1,79 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String // Hashed password
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Project {
+  id          String         @id @default(cuid())
+  title       String
+  slug        String         @unique
+  description String?        @db.Text
+  coverImage  String?
+  featured    Boolean        @default(false)
+  categoryId  String?
+  category    Category?      @relation(fields: [categoryId], references: [id])
+  images      ProjectImage[]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+}
+
+model Category {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  slug      String    @unique
+  projects  Project[]
+}
+
+model ProjectImage {
+  id        String  @id @default(cuid())
+  url       String
+  width     Int?
+  height    Int?
+  alt       String?
+  blurData  String? // Base64 blur placeholder
+  order     Int     @default(0)
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model SiteSettings {
+  id             String   @id @default(cuid()) 
+  // Singleton pattern usually implies checking ID or just taking first record
+  heroImages     String[]
+  tagline        String?
+  aboutText      String?  @db.Text
+  aboutImage     String?
+  socialInstagram String?
+  socialTwitter  String?
+  updatedAt      DateTime @updatedAt
+}
+
+model Lead {
+  id        String     @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  eventDate DateTime?
+  message   String     @db.Text
+  status    LeadStatus @default(NEW)
+  createdAt DateTime   @default(now())
+}
+
+enum LeadStatus {
+  NEW
+  IN_PROGRESS
+  CLOSED
+}
