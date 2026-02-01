@@ -20,5 +20,8 @@
   "devDependencies": {
     "prettier": "latest"
   },
+  "engines": {
+    "node": ">=20.9.0"
+  },
   "packageManager": "npm@10.2.4"
 }
