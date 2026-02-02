@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "next-themes";
 import { Moon, Sun } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -20,6 +20,7 @@ export function SiteHeader() {
     const { theme, setTheme } = useTheme();
     const [mounted, setMounted] = useState(false);
     const [scrolled, setScrolled] = useState(false);
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
     useEffect(() => {
         setMounted(true);
@@ -79,10 +80,39 @@ export function SiteHeader() {
                 )}
 
                 {/* Mobile Menu Toggle */}
-                <button className="md:hidden uppercase text-sm tracking-widest">
-                    Menu
+                <button
+                    className="md:hidden uppercase text-sm tracking-widest z-50 relative"
+                    onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                >
+                    {mobileMenuOpen ? "Close" : "Menu"}
                 </button>
             </div>
+
+            {/* Mobile Menu Overlay */}
+            <AnimatePresence>
+                {mobileMenuOpen && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        className="fixed inset-0 z-40 bg-background/95 backdrop-blur-xl flex flex-col items-center justify-center space-y-8 md:hidden"
+                    >
+                        {navItems.map((item) => (
+                            <Link
+                                key={item.href}
+                                href={item.href}
+                                onClick={() => setMobileMenuOpen(false)}
+                                className={cn(
+                                    "text-3xl font-serif font-bold tracking-tighter transition-colors hover:text-foreground/70",
+                                    pathname === item.href ? "text-foreground" : "text-foreground/60"
+                                )}
+                            >
+                                {item.name}
+                            </Link>
+                        ))}
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </header>
     );
 }
